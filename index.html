@@ -3,19 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Igor's Recent Chess Games</title>
+    <title>Igor Rigolon</title>
     <style>
         body {
             font-family: "Noto Sans", sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: white;
         }
         
         h1 {
             text-align: center;
             color: #3d3d3d;
+            margin-bottom: 30px;
+        }
+	h3 {
+            text-align: center;
             margin-bottom: 30px;
         }
         
@@ -43,7 +47,7 @@
         }
         
         .game-card {
-            background: white;
+            background: #f5f5f5;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -52,33 +56,14 @@
         .game-info {
             margin-bottom: 15px;
             padding: 15px;
-            background: #f0d9b5;
+            background: white;
             border-radius: 4px;
-            border: 1px solid #b58863;
+            border: 1px solid #e8e8e8;
         }
         
         .game-info h3 {
-            margin: 0 0 8px 0;
-            color: #3d3d3d;
+            margin: 0 0 0 0;
             font-family: "Noto Sans", sans-serif;
-            font-weight: bold;
-        }
-        
-        .game-meta {
-            font-size: 14px;
-            color: #4a4a4a;
-            font-family: "Noto Sans", sans-serif;
-        }
-        
-        .rating {
-            font-weight: bold;
-            color: #3893E8;
-        }
-        
-        .my-name {
-            background: #fff3cd;
-            padding: 2px 4px;
-            border-radius: 3px;
             font-weight: bold;
         }
         
@@ -88,109 +73,106 @@
             border: none;
             border-radius: 4px;
         }
+
+button#load-more {
+    background-color: #f5f5f5;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button#load-more:hover {
+    background-color: #a07558;
+}
     </style>
 </head>
 <body>
     
-    <div id="status"></div>
-    <div id="games-container" class="games-container"></div>
+<h3>If you're wondering how I'm doing, check out my recent chess performance</h3>
 
-    <script>
-        const MY_USERNAME = 'igorrilave';
-        
-        async function loadMyGames() {
-            const apiUrl = `https://lichess.org/api/games/user/${MY_USERNAME}?max=3&format=json`;
-            
-            showLoading('Loading your recent games...');
-            
-            try {
-                const response = await fetch(apiUrl, {
-                    headers: {
-                        'Accept': 'application/x-ndjson'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
-                }
-                
-                const text = await response.text();
-                if (!text.trim()) {
-                    throw new Error('No games found');
-                }
-                
-                const games = text.trim().split('\n').map(line => JSON.parse(line));
-                displayGames(games);
-                
-            } catch (error) {
-                showError(`Error loading games: ${error.message}`);
-            }
-        }
-        
-        function displayGames(games) {
-            const container = document.getElementById('games-container');
-            const status = document.getElementById('status');
-            
-            if (games.length === 0) {
-                status.innerHTML = '<div class="error">No recent games found.</div>';
-                container.innerHTML = '';
-                return;
-            }
-            
-            status.innerHTML = '';
-            
-            container.innerHTML = games.map((game, index) => {
-                const white = game.players.white.user?.name || 'Anonymous';
-                const black = game.players.black.user?.name || 'Anonymous';
-                const whiteRating = game.players.white.rating || '?';
-                const blackRating = game.players.black.rating || '?';
-                const result = game.winner ? (game.winner === 'white' ? '1-0' : '0-1') : '½-½';
-                const gameType = game.speed || 'Unknown';
-                const rated = game.rated ? 'Rated' : 'Casual';
-                const date = new Date(game.createdAt).toLocaleDateString();
-                const opening = game.opening?.name || 'Unknown opening';
-                
-                // Determine if we need to flip the board (if I'm playing black)
-                const shouldFlip = black.toLowerCase() === MY_USERNAME.toLowerCase();
-                const flipParam = shouldFlip ? '#flip' : '';
-                
-                // Highlight my name
-                const whiteDisplay = white.toLowerCase() === MY_USERNAME.toLowerCase() 
-                    ? `<span class="my-name">${white}</span>` 
-                    : white;
-                const blackDisplay = black.toLowerCase() === MY_USERNAME.toLowerCase() 
-                    ? `<span class="my-name">${black}</span>` 
-                    : black;
-                
-                return `
-                    <div class="game-card">
-                        <div class="game-info">
-                            <h3>Game ${index + 1}: ${whiteDisplay} <span class="rating">(${whiteRating})</span> vs ${blackDisplay} <span class="rating">(${blackRating})</span></h3>
-                            <div class="game-meta">
-                                📅 ${date} | ⚡ ${gameType} | ${rated} | Result: <strong>${result}</strong><br>
-                                📖 ${opening}
-                            </div>
-                        </div>
-                        <iframe src="https://lichess.org/embed/game/${game.id}?theme=brown&bg=light${flipParam}" 
-                                title="Game ${index + 1}: ${white} vs ${black}">
-                        </iframe>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        function showLoading(message) {
-            document.getElementById('status').innerHTML = `<div class="loading">⏳ ${message}</div>`;
-        }
-        
-        function showError(message) {
-            document.getElementById('status').innerHTML = `<div class="error">❌ ${message}</div>`;
-        }
-        
-        // Load games when page loads
-        window.addEventListener('load', () => {
-            loadMyGames();
+<div id="status"></div>
+<div id="games-container" class="games-container"></div>
+
+<div style="text-align:center;margin-top:20px">
+    <button id="load-more">➕ Show another game</button>
+</div>
+
+<script>
+const MY_USERNAME = 'igorrilave';
+let numGamesToShow = 1;              // ← now mutable
+
+window.addEventListener('load', () => {
+    loadMyGames();                   // first game
+    document
+        .getElementById('load-more') // wire the button only after DOM ready
+        .addEventListener('click', () => {
+            numGamesToShow += 1;     // bump counter
+            loadMyGames();           // redraw list
         });
-    </script>
+});
+
+async function loadMyGames() {
+    const apiUrl =
+        `https://lichess.org/api/games/user/${MY_USERNAME}?max=${numGamesToShow}&format=json`;
+
+    showLoading('Loading…');
+
+    try {
+        const res = await fetch(apiUrl, {headers:{Accept:'application/x-ndjson'}});
+        if (!res.ok) throw new Error('API error '+res.status);
+
+        const text = (await res.text()).trim();
+        if (!text) throw new Error('No games found');
+
+        const games = text.split('\n').map(JSON.parse);
+        displayGames(games);
+
+    } catch (err) {
+        showError('❌ '+err.message);
+    }
+}
+
+function displayGames(games) {
+    const container = document.getElementById('games-container');
+    document.getElementById('status').innerHTML = '';
+
+    container.innerHTML = games.map((g,i)=>{
+        const white  = g.players.white.user?.name ?? 'Anonymous';
+        const black  = g.players.black.user?.name ?? 'Anonymous';
+        const iWon   = (g.winner==='white'&&white===MY_USERNAME)||
+                       (g.winner==='black'&&black===MY_USERNAME);
+        const result = g.winner
+                       ? (iWon ? '😁 I won' : '😢 I lost')
+                       : '😐 Draw';
+        const dateObj = new Date(g.createdAt);
+const date = dateObj.toLocaleDateString();
+const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+// choose an emoji for the hour
+const hour  = dateObj.getHours();   // 0-23
+let timeEmoji;
+if      (hour >= 5  && hour < 12) timeEmoji = '🌅'; // sunrise / morning
+else if (hour >= 12 && hour < 17) timeEmoji = '🌞'; // midday / afternoon sun
+else if (hour >= 17 && hour < 21) timeEmoji = '🌇'; // sunset / early evening
+else                              timeEmoji = '🌙'; // night
+
+        return `
+        <div class="game-card">
+            <div class="game-info"><h3>📅 ${date} at ${timeEmoji} ${time} | ${result}</h3></div>
+            <iframe src="https://lichess.org/embed/game/${g.id}?theme=brown&bg=light"
+                    title="${white} vs ${black}">
+            </iframe>
+        </div>`;
+    }).join('');
+}
+
+function showLoading(msg){ document.getElementById('status').innerHTML =
+                           `<div class="loading">⏳ ${msg}</div>`; }
+function showError  (msg){ document.getElementById('status').innerHTML =
+                           `<div class="error">${msg}</div>`; }
+</script>
 </body>
 </html>
